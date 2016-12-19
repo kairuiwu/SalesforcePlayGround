@@ -1,0 +1,18 @@
+{
+    "projectName": "KevinWuDev",
+    "username": "kevinwu@gmail.com.dev",
+    "id": "f9df68c0-c581-11e6-b3c7-1329d2c9d774",
+    "namespace": "",
+    "orgType": "developer",
+    "loginUrl": "https://login.salesforce.com/",
+    "instanceUrl": "https://ap4.salesforce.com",
+    "workspace": "/Users/kevinwu/Development/Salesforce",
+    "subscription": [
+        "ApexClass",
+        "ApexComponent",
+        "ApexPage",
+        "ApexTrigger",
+        "AuraDefinitionBundle",
+        "StaticResource"
+    ]
+}
