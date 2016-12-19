@@ -4,7 +4,6 @@ config/.describe
 config/.local_store
 config/.session
 config/.settings
-config/.symbols/EtdBHandler.json
 *.manifest
 config/*
 *.sublime-*
