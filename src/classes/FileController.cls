@@ -8,20 +8,61 @@ History
 21-Dec-16   Kevin Wu       		Created
 ------------------------------------------------------------*/
 public with sharing class FileController {
+	private static final String AWS_SETTING_NAME = 'KevinWu32';
+	private static final String HTTP_PUT = 'PUT';
+	private static final String HTTP_GET = 'GET';
 	
 	/*------------------------------------------------------------
     Author:         Kevin Wu
     Company:        Kevin Wu
-    Description:    Check the user's profile before deleting the post
-    Inputs:         FileName: Name of the file
+    Description:    Get the signed URL for file download
+    Inputs:         fileName: Name of the file
     Returns:        A signed url for download
     History
     <Date>      <Authors Name>      <Brief Description of Change>
     21-Dec-16   Kevin Wu       		Created
     ------------------------------------------------------------*/
+	@AuraEnabled
 	public static String getDownloadUrl(String fileName) {
-		String httpMethod = 'GET';
-		String awsSettingName = 'KevinWu32';
+		// Generate s3 config params
+		Map<String,String> s3Config = getS3Config(AWS_SETTING_NAME);
+
+		// Init s3 service
+		S3Service s3 = new S3Service(HTTP_GET, s3Config);
+		
+		// urlEncode replaces whitespace with + instead of %20. + is invalid for AWS as it treats it as a character, so we need to substitute it after encoding
+        s3.setCanonicalUri(EncodingUtil.urlEncode(handleFileNameSpecialChar(fileName), 'UTF-8').replace('+', '%20'));
+        String signedUrl = s3.getSignedUrl();
+		 
+		return signedUrl;
+	}
+
+	/*------------------------------------------------------------
+    Author:         Kevin Wu
+    Company:        Kevin Wu
+    Description:    Get the signed URL for file upload
+    Inputs:         fileName: Name of the file
+    Returns:        A signed url for download
+    History
+    <Date>      <Authors Name>      <Brief Description of Change>
+    21-Dec-16   Kevin Wu       		Created
+    ------------------------------------------------------------*/
+    @AuraEnabled
+	public static String getUploadUrl(String fileName) {
+		// Generate s3 config params
+		Map<String,String> s3Config = getS3Config(AWS_SETTING_NAME);
+		
+		// Init s3 service
+		S3Service s3 = new S3Service(HTTP_PUT, s3Config);
+		
+		// urlEncode replaces whitespace with + instead of %20. + is invalid for AWS as it treats it as a character, so we need to substitute it after encoding
+        s3.setCanonicalUri(EncodingUtil.urlEncode(handleFileNameSpecialChar(fileName), 'UTF-8').replace('+', '%20'));
+        String signedUrl = s3.getSignedUrl();
+		 
+		return signedUrl;
+	}
+
+	private static Map<String,String> getS3Config(String awsSettingName){
 		Map<String,String> s3Config = new Map<String,String>();
 		s3Config.put('ACCESS_KEY',					AWS_Setting__c.getInstance(awsSettingName).Access_Key_Id__c);
     	s3Config.put('ACCESS_SECRET',				AWS_Setting__c.getInstance(awsSettingName).Secret_Access_Key__c);
@@ -32,15 +73,7 @@ public with sharing class FileController {
     	s3Config.put('X-Amz-SignedHeaders',				'host;X-Amz-Server-Side-Encryption');
     	s3Config.put('X-Amz-Server-Side-Encryption',	'AES256');
     	s3Config.put('X-Amz-Expires',					'604800');
-
-
-		S3Service s3 = new S3Service(httpMethod, s3Config);
-		
-		// urlEncode replaces whitespace with + instead of %20. + is invalid for AWS as it treats it as a character, so we need to substitute it after encoding
-        s3.setCanonicalUri(EncodingUtil.urlEncode(handleFileNameSpecialChar(fileName), 'UTF-8').replace('+', '%20'));
-        String signedUrl = s3.getSignedUrl();
-		 
-		return signedUrl;
+    	return s3Config;
 	}
 
 	private static String handleFileNameSpecialChar(String fileName){

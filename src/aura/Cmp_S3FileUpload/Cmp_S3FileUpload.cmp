@@ -1,0 +1,16 @@
+<aura:component controller="FileController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global" >
+
+	<ltng:require scripts="{!join(',', $Resource.jqueryui + '/jquery-ui-1.12.1.custom/external/jquery/jquery.js')}" />
+
+	<aura:attribute name="result" type="String"/>
+    
+    <div>
+        <input type="file" class="file" aura:id="file" onclick="{!c.selectFile}"/>
+    </div>
+    <div>
+    	<ui:button label="Upload" press="{!c.upload}"/>
+    </div>
+    <div>
+    	{!v.result}
+    </div>
+</aura:component>
